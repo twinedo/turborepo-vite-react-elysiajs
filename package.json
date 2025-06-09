@@ -1,8 +1,11 @@
 {
   "private": true,
   "scripts": {
+    "dev": "turbo run dev --parallel",
     "build": "turbo run build",
-    "dev": "turbo run dev",
+    "start": "turbo run start",
+    "backend": "cd apps/backend && bun run dev",
+    "frontend": "cd apps/frontend && bun run dev",
     "lint": "turbo run lint",
     "format": "prettier --write \"**/*.{ts,tsx,md}\""
   },
