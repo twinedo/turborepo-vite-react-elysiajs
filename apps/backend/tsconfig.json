@@ -9,7 +9,7 @@
     "allowJs": true,
     "baseUrl": ".",
     "paths": {
-      "@repo-shared": ["../../packages/shared/src"]
+      "~repo-shared": ["../../packages/shared/src"]
     },
 
     // Bundler mode

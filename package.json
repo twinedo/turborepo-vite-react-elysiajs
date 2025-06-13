@@ -14,7 +14,7 @@
     "prettier": "^3.2.5",
     "turbo": "^2.5.4"
   },
-  "name": "with-vite",
+  "name": "twinedo-portfolio",
   "packageManager": "bun@1.2.15",
   "workspaces": [
     "apps/*",
