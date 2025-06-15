@@ -19,4 +19,7 @@ export default defineConfig({
       shared: '/packages/shared/src',
     },
   },
+  optimizeDeps: {
+    include: ['slick-carousel']
+  }
 })

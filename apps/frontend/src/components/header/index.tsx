@@ -14,8 +14,8 @@ export const Header = () => {
   );
 
   return (
-    <header className="bg-white fixed top-0 left-0 w-full shadow-xl z-10 p-4">
-      <div className="container mx-auto max-w-[1280px] flex justify-between items-center">
+    <header className="bg-white fixed top-0 left-0 w-full shadow-xl z-100">
+      <div className="container mx-auto max-w-[1280px]  p-4 flex justify-between items-center">
         <div className="flex-row flex gap-x-1 items-center">
           <img
             src="./img/profile.jpeg"
@@ -30,8 +30,8 @@ export const Header = () => {
               <div
                 className={
                   pathname === item.to
-                    ? "text-blue-700 font-medium"
-                    : "text-blue-300"
+                    ? "text-gray-700 font-medium"
+                    : "text-gray-400"
                 }
               >
                 {item.label}
