@@ -1,19 +1,20 @@
-import Certifications from "components/Certifications";
-import Education from "components/Education";
+
 import { FcDownload } from "react-icons/fc";
-import { downloadHandler } from "services/handler/handlerAPI";
+// import { downloadHandler } from "services/handler/handlerAPI";
 import { generateRandomLightColor } from "../../utils/color";
 import { Section } from "../section";
 import { Timeline } from "../timeline";
 import { Stacks } from "../stacks";
+import { Education } from "../education";
+import { Certification } from "../certification";
 
-export default function CVPage() {
+export function CVPage() {
   const onDownloadClick = () => {
-    downloadHandler()
-      .then((res) => {
-        window.open(res);
-      })
-      .catch((error) => alert(JSON.stringify(error)));
+    // downloadHandler()
+    //   .then((res) => {
+    //     window.open(res);
+    //   })
+    //   .catch((error) => alert(JSON.stringify(error)));
   };
 
   return (
@@ -93,7 +94,7 @@ export default function CVPage() {
       </Section>
 
       <Education />
-      <Certifications />
+      <Certification />
       <Stacks />
     </div>
   );

@@ -1,6 +1,6 @@
 import { createBrowserRouter } from "react-router";
 import App from "../App";
-import { CV, Projects } from "../screens";
+import { CV, Detail, Projects } from "../screens";
 
 export const router = createBrowserRouter([
   {
@@ -15,4 +15,8 @@ export const router = createBrowserRouter([
     path: "/cv",
     element: <CV />,
   },
+  {
+    path: "/projects/detail",
+    element: <Detail />
+  }
 ]);

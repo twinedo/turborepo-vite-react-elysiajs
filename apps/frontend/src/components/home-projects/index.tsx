@@ -2,12 +2,11 @@ import { useEffect, useState } from "react";
 import Slider from "react-slick";
 import { NavLink } from "react-router";
 import { BiChevronRight } from "react-icons/bi";
-import lodash from "lodash";
-// import { getDataFromAPI } from 'services/handler/handlerAPI';
 import { AiOutlineMobile } from "react-icons/ai";
 import { TbWorld } from "react-icons/tb";
 import { Section } from "../section";
 import type { IProject } from "~repo-shared";
+import { dummyProjects } from "../../utils/const";
 
 export function HomeProjects() {
   const [loading, setLoading] = useState(true);
@@ -15,68 +14,6 @@ export function HomeProjects() {
 
   useEffect(() => {
     setLoading(true);
-
-    // Dummy data instead of API call
-    const dummyProjects: IProject[] = [
-      {
-        bucket: "projects",
-        description: "A modern e-commerce application with React Native",
-        display: "https://via.placeholder.com/300x100?text=E-Commerce+App",
-        id: "1",
-        key: "ecommerce-app",
-        link_appstore: "https://apps.apple.com/app/id123",
-        link_playstore:
-          "https://play.google.com/store/apps/details?id=com.ecommerce",
-        link_website: "https://ecommerce.example.com",
-        name: "E-Commerce App",
-        platform: "mobile",
-        tag: "react-native",
-        year: "2023",
-      },
-      {
-        bucket: "projects",
-        description: "Professional portfolio website built with Next.js",
-        display: "https://via.placeholder.com/300x100?text=Portfolio+Site",
-        id: "2",
-        key: "portfolio-website",
-        link_appstore: "",
-        link_playstore: "",
-        link_website: "https://portfolio.example.com",
-        name: "Portfolio Website",
-        platform: "website",
-        tag: "nextjs",
-        year: "2023",
-      },
-      {
-        bucket: "projects",
-        description: "Productivity app for managing daily tasks",
-        display: "https://via.placeholder.com/300x100?text=Task+Manager",
-        id: "3",
-        key: "task-manager",
-        link_appstore: "https://apps.apple.com/app/id456",
-        link_playstore:
-          "https://play.google.com/store/apps/details?id=com.tasks",
-        link_website: "",
-        name: "Task Manager",
-        platform: "mobile",
-        tag: "flutter",
-        year: "2022",
-      },
-      {
-        bucket: "projects",
-        description: "Real-time weather information dashboard",
-        display: "https://via.placeholder.com/300x100?text=Weather+Dashboard",
-        id: "4",
-        key: "weather-dashboard",
-        link_appstore: "",
-        link_playstore: "",
-        link_website: "https://weather.example.com",
-        name: "Weather Dashboard",
-        platform: "website",
-        tag: "react",
-        year: "2022",
-      },
-    ];
 
     const sortYear = dummyProjects.sort((a, b) => b.year.localeCompare(a.year));
     const slice5 = sortYear.slice(0, 4);
