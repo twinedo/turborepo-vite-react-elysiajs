@@ -90,78 +90,81 @@ export const experienceController = new Elysia({ prefix: "/experience" })
 
   // Update experience
   .patch(
-  "/:id",
-  async ({ params: { id }, body, set }) => {
-    try {
-      // Prepare update data with only provided fields
-      const updateData: Partial<ExperienceUpdateInput> = {};
-      
-      if (body.company !== undefined) updateData.company = body.company;
-      if (body.position !== undefined) updateData.position = body.position;
-      
-      if (body.startDate !== undefined) {
-        updateData.startDate = new Date(body.startDate);
-      }
-      
-      if (body.endDate !== undefined) {
-        updateData.endDate = body.endDate ? new Date(body.endDate) : null;
-      }
-      
-      if (body.description !== undefined) {
-        updateData.description = typeof body.description === 'string'
-          ? JSON.stringify(body.description.split('\n').filter(line => line.trim()))
-          : Array.isArray(body.description)
-            ? JSON.stringify(body.description)
-            : JSON.stringify([]);
-      }
+    "/:id",
+    async ({ params: { id }, body, set }) => {
+      try {
+        // Prepare update data with only provided fields
+        const updateData: Partial<ExperienceUpdateInput> = {};
 
-      // Check if experience exists first
-      const exists = await getExperience(id)
-      if (!exists) {
-        set.status = 404;
+        if (body.company !== undefined) updateData.company = body.company;
+        if (body.position !== undefined) updateData.position = body.position;
+
+        if (body.startDate !== undefined) {
+          updateData.startDate = new Date(body.startDate);
+        }
+
+        if (body.endDate !== undefined) {
+          updateData.endDate = body.endDate ? new Date(body.endDate) : null;
+        }
+
+        if (body.description !== undefined) {
+          updateData.description =
+            typeof body.description === "string"
+              ? JSON.stringify(
+                  body.description.split("\n").filter((line) => line.trim())
+                )
+              : Array.isArray(body.description)
+                ? JSON.stringify(body.description)
+                : JSON.stringify([]);
+        }
+
+        // Check if experience exists first
+        const exists = await getExperience(id);
+        if (!exists) {
+          set.status = 404;
+          return {
+            status: 404,
+            message: "Experience not found",
+          };
+        }
+
+        const data = await updateExperience(id, updateData);
+
+        set.status = 200;
         return {
-          status: 404,
-          message: "Experience not found"
+          status: 200,
+          message: "Experience updated successfully",
+          data: {
+            ...data,
+            description: data.description ? JSON.parse(data.description) : [],
+          },
+        };
+      } catch (error) {
+        set.status = 500;
+        return {
+          status: 500,
+          message: "Failed to update experience",
+          error: error instanceof Error ? error.message : String(error),
         };
       }
-
-      const data = await updateExperience(id, updateData);
-
-      set.status = 200;
-      return {
-        status: 200,
-        message: "Experience updated successfully",
-        data: {
-          ...data,
-          description: data.description ? JSON.parse(data.description) : []
-        }
-      };
-    } catch (error) {
-      set.status = 500;
-      return {
-        status: 500,
-        message: "Failed to update experience",
-        error: error instanceof Error ? error.message : String(error),
-      };
+    },
+    {
+      params: t.Object({
+        id: t.String(),
+      }),
+      body: t.Object({
+        company: t.Optional(t.String()),
+        position: t.Optional(t.String()),
+        startDate: t.Optional(t.String({ format: "date-time" })),
+        endDate: t.Optional(
+          t.Union([t.String({ format: "date-time" }), t.Null()])
+        ),
+        description: t.Optional(
+          t.Union([t.String(), t.Array(t.String()), t.Null()])
+        ),
+      }),
     }
-  },
-  {
-    params: t.Object({
-      id: t.String()
-    }),
-    body: t.Object({
-      company: t.Optional(t.String()),
-      position: t.Optional(t.String()),
-      startDate: t.Optional(t.String({ format: "date-time" })),
-      endDate: t.Optional(t.Union([t.String({ format: "date-time" }), t.Null()])),
-      description: t.Optional(t.Union([
-        t.String(),
-        t.Array(t.String()),
-        t.Null()
-      ]))
-    }),
-  }
-)
+  )
 
   // Delete experience
   .delete(
