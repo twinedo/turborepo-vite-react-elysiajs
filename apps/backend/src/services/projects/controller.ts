@@ -9,6 +9,7 @@ import {
 import { staticPlugin } from '@elysiajs/static';
 import { ensureBucketExists, deleteProjectFiles } from './utils';
 import { join } from "node:path";
+import { prisma } from 'prisma/client';
 
 export const UPLOAD_BASE = join(process.cwd(), 'src', 'uploads', 'projects');
 
@@ -27,6 +28,11 @@ export const projectController = new Elysia({ prefix: '/project' })
         await ensureBucketExists(body.bucket);
         
         const data = await createProject(body);
+
+        await prisma.projectImage.updateMany({
+        where: { bucket: data.bucket },
+        data: { bucket: data.bucket } // Or add projectId if schema changed
+      });
         
         set.status = 201;
         return {
