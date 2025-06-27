@@ -24,3 +24,21 @@ model Experience {
   createdAt DateTime @default(now())
   updatedAt DateTime @updatedAt
 }
+
+model Project {
+  id              String   @id @default(uuid())
+  year            String
+  platform        String   // 'mobile' or 'website'
+  tag             String
+  project_name    String
+  description     String   // JSON string of string[]
+  link_appstore   String?
+  link_playstore  String?
+  link_website    String?
+  display         String   // thumbnail image path
+  bucket          String   // folder name under uploads/projects
+  createdAt       DateTime @default(now())
+  updatedAt       DateTime @updatedAt
+
+  @@unique([bucket, project_name])
+}
