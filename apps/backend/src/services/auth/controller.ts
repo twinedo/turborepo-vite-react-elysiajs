@@ -1,0 +1,61 @@
+import { Elysia, t } from 'elysia'
+import { registerUser, loginUser } from './model'
+
+export const authController = new Elysia({ prefix: '/auth' })
+  .post(
+    '/register',
+    async ({ body, set }) => {
+      try {
+        const user = await registerUser(body)
+        set.status = 201
+        return {
+          status: 201,
+          message: 'User registered successfully',
+          data: {
+            id: user.id,
+            email: user.email
+          }
+        }
+      } catch (error) {
+        set.status = 400
+        return {
+          status: 400,
+          message: 'Registration failed',
+          error: error instanceof Error ? error.message : String(error)
+        }
+      }
+    },
+    {
+      body: t.Object({
+        email: t.String({ format: 'email' }),
+        password: t.String({ minLength: 8 })
+      })
+    }
+  )
+  .post(
+    '/login',
+    async ({ body, set }) => {
+      try {
+        const { user, token } = await loginUser(body.email, body.password)
+        set.status = 200
+        return {
+          status: 200,
+          message: 'Login successful',
+          data: { user, token }
+        }
+      } catch (error) {
+        set.status = 401
+        return {
+          status: 401,
+          message: 'Login failed',
+          error: error instanceof Error ? error.message : String(error)
+        }
+      }
+    },
+    {
+      body: t.Object({
+        email: t.String({ format: 'email' }),
+        password: t.String()
+      })
+    }
+  )

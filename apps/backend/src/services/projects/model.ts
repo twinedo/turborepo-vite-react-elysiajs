@@ -1,6 +1,6 @@
 
 import { prisma } from 'prisma/client';
-import type { Platform, Project, ProjectInput, ProjectUpdateInput } from './types';
+import type { Platform, ProjectInput, ProjectUpdateInput } from './types';
 import { parseDescription } from './utils.ts';
 
 export const createProject = async (data: ProjectInput) => {

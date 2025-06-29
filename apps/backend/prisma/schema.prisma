@@ -55,3 +55,12 @@ model ProjectImage {
   @@unique([bucket, filename])
   @@index([bucket])
 }
+
+model User {
+  id          String   @id @default(uuid())
+  email       String   @unique
+  password    String
+  role        String   @default("user") // "user" or "admin"
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+}
