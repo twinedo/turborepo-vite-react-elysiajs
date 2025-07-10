@@ -4,8 +4,10 @@ import { staticPlugin } from "@elysiajs/static";
 import { mkdir } from "node:fs/promises";
 import { join } from "node:path";
 import { unlink } from "node:fs/promises";
-import { authMiddleware } from "../auth/middleware";
 import { authSwagger } from "src/utils/fun";
+import jwt from "@elysiajs/jwt";
+import { jwtProps } from "src/utils/const";
+import bearer from "@elysiajs/bearer";
 
 const UPLOAD_DIR = join(process.cwd(), "src", "uploads", "cv");
 
@@ -42,28 +44,13 @@ export const cvController = new Elysia({ prefix: "/cv" })
     // Return the file
     return new Response(Bun.file(filePath));
   })
-  .guard(
-    authSwagger(true),
-    (app) =>
-      app.post(
+  .use(jwt(jwtProps))
+  .use(bearer()) 
+  .guard(authSwagger(true), (app) =>
+    app
+      .post(
         "/upload",
-        async ({ body, set, request }) => {
-          const user = (request as any).user;
-          if (!user) {
-            set.status = 401;
-            return {
-              status: 401,
-              message: "User authentication is missing",
-            };
-          }
-          if (user.role !== "superadmin") {
-            set.status = 403;
-            return {
-              status: 403,
-              message: "You do not have permission to create projects",
-            };
-          }
-
+        async ({ body }) => {
           const file = Array.isArray(body.cv_file)
             ? body.cv_file[0]
             : body.cv_file;
@@ -96,7 +83,6 @@ export const cvController = new Elysia({ prefix: "/cv" })
           };
         },
         {
-          beforeHandle: authMiddleware(["superadmin"]).handle,
           body: t.Object({
             cv_file: t.Any(),
           }),

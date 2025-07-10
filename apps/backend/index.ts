@@ -22,6 +22,7 @@ const app = new Elysia()
           title: "Portfolio API",
           version: "1.0.0",
         },
+        tags: [{ name: 'Project Images', description: 'Image management endpoints' }],
         components: {
           securitySchemes: {
             bearerAuth: {

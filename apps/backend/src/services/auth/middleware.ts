@@ -1,60 +1,34 @@
-import { Elysia } from "elysia";
-import { verifyToken } from "./model";
-import { prisma } from "prisma/client";
+import { type Context } from "elysia";
+import { type JWTPayloadSpec } from "@elysiajs/jwt";
+import type { User } from "./types";
 
-export const authMiddleware = (requiredRoles?: string[]) => {
-  return new Elysia({ name: "authMiddleware" })
-    .onBeforeHandle(async ({ set, headers }) => {
-      const authHeader = headers["authorization"];
+type AuthContext = Context & {
+  bearer?: string;
+  jwt: {
+    verify: (token: string) => Promise<JWTPayloadSpec>;
+    sign: (payload: User) => Promise<string>;
+  };
+};
 
-      if (!authHeader) {
-        set.status = 401;
-        throw new Error("Authorization header missing");
-      }
+export const authMiddleWare = () => {
+  return async ({ bearer, jwt, set }: AuthContext) => {
+    if (!bearer) {
+      set.status = 401;
+      return {
+        status: 401,
+        message: "User authentication is missing",
+      };
+    }
 
-      if (!authHeader.startsWith("Bearer ")) {
-        set.status = 401;
-        throw new Error("Invalid authorization format");
-      }
+    const user = await jwt.verify(bearer);
+    const dataUser = user as User;
 
-      const token = authHeader.split(" ")[1];
-      if (!token) {
-        set.status = 401;
-        throw new Error("Token missing from authorization header");
-      }
-
-      try {
-        const decoded = verifyToken(token);
-        const user = await prisma.user.findUnique({
-          where: { id: decoded.id },
-        });
-
-        if (!user) {
-          set.status = 401;
-          throw new Error("User not found");
-        }
-
-        if (requiredRoles && !requiredRoles.includes(user.role)) {
-          set.status = 403;
-          throw new Error("Insufficient permissions");
-        }
-
-        // Attach user to context
-        return {
-          user,
-        };
-      } catch (error) {
-        set.status = 401;
-        throw new Error("Invalid or expired token");
-      }
-    })
-    .on("afterHandle", ({ request }) => {
-      // Add the security requirement to Swagger docs
-      if (!request.route.detail?.security) {
-        request.route.detail = {
-          ...(request.route.detail || {}),
-          security: [{ bearerAuth: [] }],
-        };
-      }
-    });
+    if (dataUser.role !== "superadmin") {
+      set.status = 403;
+      return {
+        status: 403,
+        message: "You do not have permission to create projects",
+      };
+    }
+  };
 };

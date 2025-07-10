@@ -10,8 +10,10 @@ import { staticPlugin } from "@elysiajs/static";
 import { ensureBucketExists, deleteProjectFiles } from "./utils";
 import { join } from "node:path";
 import { prisma } from "prisma/client";
-import { authMiddleware } from "../auth/middleware";
 import { authSwagger } from "src/utils/fun";
+import jwt from "@elysiajs/jwt";
+import { jwtProps } from "src/utils/const";
+import bearer from "@elysiajs/bearer";
 
 export const UPLOAD_BASE = join(process.cwd(), "src", "uploads", "projects");
 
@@ -22,29 +24,14 @@ export const projectController = new Elysia({ prefix: "/project" })
       prefix: "/project/files",
     })
   )
+  .use(jwt(jwtProps))
+  .use(bearer())
   .guard(authSwagger(true), (app) =>
     app
       .post(
         "/",
-        async ({ body, set, request }) => {
+        async ({ body, set }) => {
           try {
-            const user = (request as any).user;
-            if (!user) {
-              set.status = 401;
-              return {
-                status: 401,
-                message: "User authentication is missing",
-              };
-            }
-            if (user.role !== "superadmin") {
-              set.status = 403;
-              return {
-                status: 403,
-                message: "You do not have permission to create projects",
-              };
-            }
-
-            console.log(`User ${user.email} creating project`);
             await ensureBucketExists(body.bucket);
 
             const data = await createProject(body);
@@ -74,7 +61,6 @@ export const projectController = new Elysia({ prefix: "/project" })
           }
         },
         {
-          beforeHandle: authMiddleware(["superadmin"]).handle, // Ensure only admins can create projects
           body: t.Object({
             year: t.String(),
             platform: t.Union([t.Literal("mobile"), t.Literal("website")]),
@@ -94,23 +80,8 @@ export const projectController = new Elysia({ prefix: "/project" })
       )
       .patch(
         "/:id",
-        async ({ params: { id }, body, set, request }) => {
+        async ({ params: { id }, body, set }) => {
           try {
-            const user = (request as any).user;
-            if (!user) {
-              set.status = 401;
-              return {
-                status: 401,
-                message: "User authentication is missing",
-              };
-            }
-            if (user.role !== "superadmin") {
-              set.status = 403;
-              return {
-                status: 403,
-                message: "You do not have permission to create projects",
-              };
-            }
             const data = await updateProject(id, body);
 
             set.status = 200;
@@ -132,7 +103,6 @@ export const projectController = new Elysia({ prefix: "/project" })
           }
         },
         {
-          beforeHandle: authMiddleware(["superadmin"]).handle,
           params: t.Object({
             id: t.String(),
           }),
@@ -155,23 +125,8 @@ export const projectController = new Elysia({ prefix: "/project" })
       // Delete project
       .delete(
         "/:id",
-        async ({ params: { id }, set, request }) => {
+        async ({ params: { id }, set }) => {
           try {
-            const user = (request as any).user;
-            if (!user) {
-              set.status = 401;
-              return {
-                status: 401,
-                message: "User authentication is missing",
-              };
-            }
-            if (user.role !== "superadmin") {
-              set.status = 403;
-              return {
-                status: 403,
-                message: "You do not have permission to create projects",
-              };
-            }
             const project = await getProject(id);
             if (!project) {
               set.status = 404;
@@ -202,7 +157,6 @@ export const projectController = new Elysia({ prefix: "/project" })
           }
         },
         {
-          beforeHandle: authMiddleware(["superadmin"]).handle,
           params: t.Object({
             id: t.String(),
           }),

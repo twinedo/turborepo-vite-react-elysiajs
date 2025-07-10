@@ -9,9 +9,10 @@ import { staticPlugin } from "@elysiajs/static";
 import { join } from "node:path";
 import { mkdir, unlink } from "node:fs/promises";
 import { prisma } from "prisma/client";
-import { authMiddleware } from "../auth/middleware";
-import swagger from "@elysiajs/swagger";
 import { authSwagger } from "src/utils/fun";
+import jwt from "@elysiajs/jwt";
+import { jwtProps } from "src/utils/const";
+import bearer from "@elysiajs/bearer";
 
 const UPLOAD_BASE = join(process.cwd(), "src", "uploads", "projects");
 
@@ -22,42 +23,46 @@ export const projectImageController = new Elysia({ prefix: "/project-images" })
       prefix: "/project/files",
     })
   )
-  .guard(authSwagger(true), (app) =>
+  // Get all images for a bucket
+  .get(
+    "/:bucket",
+    async ({ params: { bucket }, set }) => {
+      try {
+        const images = await getProjectImages(bucket);
+        const data = images.map((img) => ({
+          ...img,
+          url: `/project/files/${bucket}/${img.filename}`,
+        }));
+
+        set.status = 200;
+        return {
+          status: 200,
+          message: "Get project images successfully",
+          data,
+        };
+      } catch (error) {
+        set.status = 500;
+        return {
+          status: 500,
+          message: "Failed to get project images",
+          error: error instanceof Error ? error.message : String(error),
+        };
+      }
+    },
+    {
+      params: t.Object({
+        bucket: t.String(),
+      }),
+    }
+  )
+  .use(jwt(jwtProps))
+  .use(bearer())
+  .guard(authSwagger(true, ["Project Images"]), (app) =>
     app
-      .use(
-        swagger({
-          documentation: {
-            components: {
-              securitySchemes: {
-                bearerAuth: {
-                  type: "http",
-                  scheme: "bearer",
-                  bearerFormat: "JWT",
-                },
-              },
-            },
-          },
-        })
-      )
       .post(
         "/upload",
-        async ({ body: { file, bucket }, set, request }) => {
+        async ({ body: { file, bucket }, set }) => {
           try {
-            const user = (request as any).user;
-            if (!user) {
-              set.status = 401;
-              return {
-                status: 401,
-                message: "User authentication is missing",
-              };
-            }
-            if (user.role !== "superadmin") {
-              set.status = 403;
-              return {
-                status: 403,
-                message: "You do not have permission to create projects",
-              };
-            }
             // Validate bucket format (alphanumeric with dashes)
             if (!/^[a-z0-9-]+$/.test(bucket)) {
               set.status = 400;
@@ -98,7 +103,6 @@ export const projectImageController = new Elysia({ prefix: "/project-images" })
           }
         },
         {
-          beforeHandle: authMiddleware(["superadmin"]).handle,
           body: t.Object({
             file: t.File(),
             bucket: t.String(),
@@ -180,36 +184,3 @@ export const projectImageController = new Elysia({ prefix: "/project-images" })
       )
   )
   // Upload new image (using bucket)
-
-  // Get all images for a bucket
-  .get(
-    "/:bucket",
-    async ({ params: { bucket }, set }) => {
-      try {
-        const images = await getProjectImages(bucket);
-        const data = images.map((img) => ({
-          ...img,
-          url: `/project/files/${bucket}/${img.filename}`,
-        }));
-
-        set.status = 200;
-        return {
-          status: 200,
-          message: "Get project images successfully",
-          data,
-        };
-      } catch (error) {
-        set.status = 500;
-        return {
-          status: 500,
-          message: "Failed to get project images",
-          error: error instanceof Error ? error.message : String(error),
-        };
-      }
-    },
-    {
-      params: t.Object({
-        bucket: t.String(),
-      }),
-    }
-  );

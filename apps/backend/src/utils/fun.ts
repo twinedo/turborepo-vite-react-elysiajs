@@ -1,9 +1,13 @@
-export const authSwagger = (required: boolean) => ({
+import { authMiddleWare } from "src/services/auth/middleware";
+
+export const authSwagger = (required: boolean, tags?: string[]) => ({
+  beforeHandle: authMiddleWare(),
   detail: {
     security: required ? [{ bearerAuth: [] }] : [],
     swagger: {
       security: [{ bearerAuth: [] }],
-      securityRequired: true
-    }
-  }
+      securityRequired: true,
+    },
+    tags: tags || [],
+  },
 });
