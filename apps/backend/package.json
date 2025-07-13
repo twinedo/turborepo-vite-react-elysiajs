@@ -11,9 +11,9 @@
     "db:migrate": "prisma migrate deploy"
   },
   "devDependencies": {
-    "@prisma/client": "^6.10.1",
+    "@prisma/client": "^6.11.1",
     "@types/bun": "latest",
-    "prisma": "^6.10.1"
+    "prisma": "^6.11.1"
   },
   "peerDependencies": {
     "typescript": "^5"

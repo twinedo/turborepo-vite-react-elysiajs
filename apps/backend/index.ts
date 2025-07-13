@@ -8,7 +8,14 @@ import { projectImageController } from "src/services/projectImages/controller";
 import { authController } from "src/services/auth";
 
 const app = new Elysia()
-  .use(cors())
+  .use(
+    cors({
+      origin: import.meta.env.VITE_FRONTEND_URL || true, // or specific origin
+      methods: ["GET", "POST", "PUT", "DELETE"],
+      allowedHeaders: ["Content-Type"],
+      exposeHeaders: ["Content-Disposition"], // Important for downloads
+    })
+  )
   .get("/", () => "Hello from Elysia!")
   .use(cvController)
   .use(experienceController)
@@ -22,7 +29,9 @@ const app = new Elysia()
           title: "Portfolio API",
           version: "1.0.0",
         },
-        tags: [{ name: 'Project Images', description: 'Image management endpoints' }],
+        tags: [
+          { name: "Project Images", description: "Image management endpoints" },
+        ],
         components: {
           securitySchemes: {
             bearerAuth: {

@@ -1,40 +1,40 @@
 import { Elysia, t } from "elysia";
-import { loginUser } from "./model";
+import { loginUser, registerUser } from "./model";
 import jwt from "@elysiajs/jwt";
 import { jwtProps } from "src/utils/const";
 
 export const authController = new Elysia({ prefix: "/auth" })
-    // .post(
-    //   "/register",
-    //   async ({ body, set }) => {
-    //     try {
-    //       const user = await registerUser(body);
-    //       set.status = 201;
-    //       return {
-    //         status: 201,
-    //         message: "User registered successfully",
-    //         data: {
-    //           id: user.id,
-    //           email: user.email,
-    //         },
-    //       };
-    //     } catch (error) {
-    //       set.status = 400;
-    //       console.log("error", error);
-    //       return {
-    //         status: 400,
-    //         message: "Registration failed",
-    //         error: error instanceof Error ? error.message : String(error),
-    //       };
-    //     }
-    //   },
-    //   {
-    //     body: t.Object({
-    //       email: t.String({ format: "email" }),
-    //       password: t.String({ minLength: 8 }),
-    //     }),
-    //   }
-    // )
+    .post(
+      "/register",
+      async ({ body, set }) => {
+        try {
+          const user = await registerUser(body);
+          set.status = 201;
+          return {
+            status: 201,
+            message: "User registered successfully",
+            data: {
+              id: user.id,
+              email: user.email,
+            },
+          };
+        } catch (error) {
+          set.status = 400;
+          console.log("error", error);
+          return {
+            status: 400,
+            message: "Registration failed",
+            error: error instanceof Error ? error.message : String(error),
+          };
+        }
+      },
+      {
+        body: t.Object({
+          email: t.String({ format: "email" }),
+          password: t.String({ minLength: 8 }),
+        }),
+      }
+    )
   .use(jwt(jwtProps))
   .post(
     "/login",

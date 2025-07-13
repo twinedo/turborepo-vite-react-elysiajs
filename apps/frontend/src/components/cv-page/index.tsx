@@ -1,22 +1,22 @@
 
 import { FcDownload } from "react-icons/fc";
-// import { downloadHandler } from "services/handler/handlerAPI";
 import { generateRandomLightColor } from "../../utils/color";
 import { Section } from "../section";
 import { Timeline } from "../timeline";
 import { Stacks } from "../stacks";
 import { Education } from "../education";
 import { Certification } from "../certification";
+import { useGetExperiences } from "../../services/experiences";
+import { format } from "date-fns";
+import { downloadCV } from "../../services/cv";
 
 export function CVPage() {
-  const onDownloadClick = () => {
-    // downloadHandler()
-    //   .then((res) => {
-    //     window.open(res);
-    //   })
-    //   .catch((error) => alert(JSON.stringify(error)));
-  };
+  const {data} = useGetExperiences()
 
+  const onDownloadClick = async () => {
+    await downloadCV()
+  }
+      
   return (
     <div className="bg-white">
       <Section>
@@ -52,41 +52,19 @@ export function CVPage() {
             </div>
 
             <div className="relative space-y-5">
-              <Timeline
-                dateText="Mar 2024 - Sep 2024"
+              {data?.map(item => (
+                <Timeline
+                key={item.id}
+                dateText={`${format(item.startDate, 'MMM yyyy')} - ${item.endDate ? format(item.endDate ?? '', 'MMM yyyy') : 'recently'}`}
                 bgCard={generateRandomLightColor()}
               >
-                <p className="font-bold">INSPIRO - Mobile Developer</p>
-                <p>
-                  - Engineered modules in the Pruforce Pulse app using Agile methodologies, optimizing performance and scalability in a manner
-                  consistent with modern React component design.
-                  <br />- Diagnosed and resolved issues in both existing and new modules while maintaining accurate version control with Git.
-                  <br />- Collaborated with vendors to extend functionality using React Native, demonstrating skills transferable to React applications in
-                  full-stack development.
-                  <br />- Delivered robust, high-quality code for iOS and Android platforms with a focus on performance optimization and adherence to mobile
-                  best practices.
-                </p>
+                <p className="font-bold">{item.company} - {item.position}</p>
+                {item.description?.map(desc => (
+                  <p key={desc}>{desc}</p>
+                ))}
               </Timeline>
-
-              {/* Repeat Timeline for other experiences */}
-              <Timeline
-                dateText="Jan 2022 - May 2023"
-                bgCard={generateRandomLightColor()}
-              >
-                <p className="font-bold">DIGITSENSE LTD - Mobile Developer</p>
-                <p>
-                  - Constructed the Myrlabs app using React Native to ensure cross-platform functionality and responsive design, complementing web
-                  development practices in React.
-                  <br />- Conducted thorough client requirement analyses and provided actionable recommendations, aligning with Agile methodologies for
-                  iterative development.
-                  <br />- Supported team efforts in developing web applications by applying mobile development insights to enhance UI responsiveness and
-                  user experience.
-                  <br />- Performed comprehensive testing and documentation to ensure application reliability, incorporating unit testing practices with tools
-                  like Jest and Vitest.
-                </p>
-              </Timeline>
-
-              {/* Add remaining Timeline components similarly */}
+              ))}
+              
               
             </div>
           </div>

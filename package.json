@@ -11,6 +11,7 @@
     "postinstall": "turbo run db:generate"
   },
   "devDependencies": {
+    "@tanstack/eslint-plugin-query": "^5.81.2",
     "eslint": "^8.57.0",
     "prettier": "^3.2.5",
     "turbo": "^2.5.4"
@@ -22,7 +23,9 @@
     "packages/*"
   ],
   "dependencies": {
+    "@tanstack/react-query": "^5.83.0",
     "@types/lodash": "^4.17.17",
+    "date-fns": "^4.1.0",
     "lodash": "^4.17.21",
     "react-icons": "^5.5.0"
   }

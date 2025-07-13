@@ -6,39 +6,46 @@ import {
   updateExperience,
   deleteExperience,
 } from "./model";
-import type { ExperienceUpdateInput } from "./types";
+import {
+  errorResponse,
+  successResponse,
+  type ExperienceUpdateInput,
+} from "~repo-shared";
 import { authSwagger } from "src/utils/fun";
 import jwt from "@elysiajs/jwt";
 import { jwtProps } from "src/utils/const";
 import bearer from "@elysiajs/bearer";
+import { isValidYyyyMm } from "src/utils/dateUtils";
 
 export const experienceController = new Elysia({ prefix: "/experience" })
   // Create new experience
 
   // Get all experiences (sorted by endDate)
-  .get("/", async ({ set }) => {
+  .get("/", async () => {
     try {
       const data = await getExperiences();
       const formattedExperiences = data.map((exp) => ({
         ...exp,
-        description:
-          typeof exp.description === "string" && exp.description
-            ? JSON.parse(exp.description)
-            : [],
+        description: exp.description
+          // typeof exp.description === "string" && exp.description
+          //   ? JSON.parse(exp.description)
+          //   : [],
       }));
-      set.status = 200;
-      return {
-        status: 200,
-        message: "Get experiences successfully",
-        data: formattedExperiences,
-      };
+      return successResponse(formattedExperiences, "Get exp successfully", 200);
+      // set.status = 200;
+      // return {
+      //   status: 200,
+      //   message: "Get experiences successfully",
+      //   data: formattedExperiences,
+      // };
     } catch (error) {
-      set.status = 500;
-      return {
-        status: 500,
-        message: "Failed to get experiences",
-        error: error instanceof Error ? error.message : String(error),
-      };
+      return errorResponse(error, "Failed to get experiences", 500);
+      // set.status = 500;
+      // return {
+      //   status: 500,
+      //   message: "Failed to get experiences",
+      //   error: error instanceof Error ? error.message : String(error),
+      // };
     }
   })
   .use(jwt(jwtProps))
@@ -49,52 +56,57 @@ export const experienceController = new Elysia({ prefix: "/experience" })
         "/",
         async ({ body, set }) => {
           try {
-            const descriptionArray =
-              typeof body.description === "string"
-                ? body.description.split("\n").filter((line) => line.trim())
-                : Array.isArray(body.description)
-                  ? body.description
-                  : [];
+            // Validate date formats
+            if (!isValidYyyyMm(body.startDate)) {
+              set.status = 400;
+              return { error: "Invalid start date format. Use YYYY-MM" };
+            }
 
-            const data = await createExperience({
+            if (body.endDate && !isValidYyyyMm(body.endDate)) {
+              set.status = 400;
+              return { error: "Invalid end date format. Use YYYY-MM" };
+            }
+
+            // Optional: Validate description array
+            if (body.description && body.description.length > 0) {
+              const hasEmptyPoints = body.description.some(
+                (point) => !point.trim()
+              );
+              if (hasEmptyPoints) {
+                set.status = 400;
+                return { error: "Description points cannot be empty" };
+              }
+            }
+
+            const description = Array.isArray(body.description)
+              ? body.description
+                  .map((item) => String(item).trim())
+                  .filter((item) => item.length > 0)
+              : [];
+
+            const finalBody = {
               ...body,
-              startDate: new Date(body.startDate),
-              endDate: body.endDate ? new Date(body.endDate) : undefined,
-              description: JSON.stringify(descriptionArray), // Convert to JSON string
-            });
-            set.status = 201;
-            return {
-              status: 201,
-              message: "Experience created successfully",
-              data: {
-                ...data,
-                description: descriptionArray, // Return parsed description
-              },
-            };
+              description
+            }
+
+            const experience = await createExperience(finalBody);
+            return { success: true, data: experience };
           } catch (error) {
-            set.status = 500;
-            return {
-              status: 500,
-              message: "Failed to create experience",
-              error: error instanceof Error ? error.message : String(error),
-            };
+            set.status = 400;
+            return { error: error?.toString() };
           }
         },
         {
           body: t.Object({
             company: t.String(),
             position: t.String(),
-            startDate: t.String({ format: "date-time" }),
-            endDate: t.Optional(t.String({ format: "date-time" })),
-            description: t.Optional(
-              t.Union([
-                t.String(), // Accept string with newlines
-                t.Array(t.String()), // Or direct array
-              ])
-            ),
+            startDate: t.String(), // "2025-06"
+            endDate: t.Optional(t.Union([t.String(), t.Null()])), // "2025-12" or null
+            description: t.Optional(t.Array(t.String())), // Array of strings for bullet points
           }),
         }
-      ) // Update experience
+      )
+      // Update experience
       .patch(
         "/:id",
         async ({ params: { id }, body, set }) => {
@@ -106,23 +118,46 @@ export const experienceController = new Elysia({ prefix: "/experience" })
             if (body.position !== undefined)
               updateData.position = body.position;
 
+            // Handle date fields - validate format if provided
             if (body.startDate !== undefined) {
-              updateData.startDate = new Date(body.startDate);
+              if (!isValidYyyyMm(body.startDate)) {
+                set.status = 400;
+                return { error: "Invalid start date format. Use YYYY-MM" };
+              }
+              updateData.startDate = body.startDate;
             }
 
             if (body.endDate !== undefined) {
-              updateData.endDate = body.endDate ? new Date(body.endDate) : null;
+              if (body.endDate && !isValidYyyyMm(body.endDate)) {
+                set.status = 400;
+                return { error: "Invalid end date format. Use YYYY-MM" };
+              }
+              updateData.endDate = body.endDate;
             }
 
+            // Handle description array
             if (body.description !== undefined) {
-              updateData.description =
-                typeof body.description === "string"
-                  ? JSON.stringify(
-                      body.description.split("\n").filter((line) => line.trim())
-                    )
-                  : Array.isArray(body.description)
-                    ? JSON.stringify(body.description)
-                    : JSON.stringify([]);
+              if (body.description === null) {
+                updateData.description = [];
+              } else if (Array.isArray(body.description)) {
+                // Validate that all array items are non-empty strings
+                const hasEmptyPoints = body.description.some(
+                  (point) => !point.trim()
+                );
+                if (hasEmptyPoints) {
+                  set.status = 400;
+                  return { error: "Description points cannot be empty" };
+                }
+                updateData.description = body.description;
+              } else if (typeof body.description === "string") {
+                // Convert string to array by splitting on newlines
+                updateData.description = body.description
+                  .split("\n")
+                  .map((line) => line.trim())
+                  .filter((line) => line.length > 0);
+              } else {
+                updateData.description = [];
+              }
             }
 
             // Check if experience exists first
@@ -141,12 +176,7 @@ export const experienceController = new Elysia({ prefix: "/experience" })
             return {
               status: 200,
               message: "Experience updated successfully",
-              data: {
-                ...data,
-                description: data.description
-                  ? JSON.parse(data.description)
-                  : [],
-              },
+              data: data,
             };
           } catch (error) {
             set.status = 500;
@@ -164,13 +194,11 @@ export const experienceController = new Elysia({ prefix: "/experience" })
           body: t.Object({
             company: t.Optional(t.String()),
             position: t.Optional(t.String()),
-            startDate: t.Optional(t.String({ format: "date-time" })),
-            endDate: t.Optional(
-              t.Union([t.String({ format: "date-time" }), t.Null()])
-            ),
+            startDate: t.Optional(t.String()), // YYYY-MM format
+            endDate: t.Optional(t.Union([t.String(), t.Null()])), // YYYY-MM format or null
             description: t.Optional(
-              t.Union([t.String(), t.Array(t.String()), t.Null()])
-            ),
+              t.Union([t.Array(t.String()), t.String(), t.Null()])
+            ), // Array of strings, single string, or null
           }),
         }
       )

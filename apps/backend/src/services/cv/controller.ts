@@ -8,6 +8,7 @@ import { authSwagger } from "src/utils/fun";
 import jwt from "@elysiajs/jwt";
 import { jwtProps } from "src/utils/const";
 import bearer from "@elysiajs/bearer";
+import { errorResponse } from "~repo-shared";
 
 const UPLOAD_DIR = join(process.cwd(), "src", "uploads", "cv");
 
@@ -29,8 +30,11 @@ export const cvController = new Elysia({ prefix: "/cv" })
     const cv = await getCV();
 
     if (!cv) {
-      set.status = 404;
-      return { error: "No CV found" };
+      set.headers = {
+        "Access-Control-Allow-Origin": import.meta.env.VITE_FRONTEND_URL || "*",
+        "Access-Control-Allow-Methods": "GET",
+      };
+      return errorResponse("No CV found", "", 404);
     }
 
     const filePath = join(UPLOAD_DIR, cv.filename);
@@ -39,58 +43,65 @@ export const cvController = new Elysia({ prefix: "/cv" })
     set.headers = {
       "Content-Type": "application/pdf",
       "Content-Disposition": `attachment; filename="${cv.filename}"`,
+      "Access-Control-Allow-Origin": import.meta.env.VITE_FRONTEND_URL || "*",
+      "Access-Control-Expose-Headers": "Content-Disposition",
     };
+
+    //   set.headers = {
+    //   "Content-Type": "application/pdf",
+    //   "Content-Disposition": `attachment; filename="${cv.filename}"`,
+
+    // };
 
     // Return the file
     return new Response(Bun.file(filePath));
   })
   .use(jwt(jwtProps))
-  .use(bearer()) 
+  .use(bearer())
   .guard(authSwagger(true), (app) =>
-    app
-      .post(
-        "/upload",
-        async ({ body }) => {
-          const file = Array.isArray(body.cv_file)
-            ? body.cv_file[0]
-            : body.cv_file;
+    app.post(
+      "/upload",
+      async ({ body }) => {
+        const file = Array.isArray(body.cv_file)
+          ? body.cv_file[0]
+          : body.cv_file;
 
-          if (!file) throw new Error("No file uploaded");
-          if (file.type !== "application/pdf")
-            throw new Error("Only PDF files allowed");
+        if (!file) throw new Error("No file uploaded");
+        if (file.type !== "application/pdf")
+          throw new Error("Only PDF files allowed");
 
-          // Constant filename
-          const filename = "Twin Edo Nugraha - CV.pdf";
-          const filePath = join(UPLOAD_DIR, filename);
+        // Constant filename
+        const filename = "Twin Edo Nugraha - CV.pdf";
+        const filePath = join(UPLOAD_DIR, filename);
 
-          // Delete existing file if it exists
-          try {
-            (await Bun.file(filePath).exists()) && (await unlink(filePath));
-          } catch (error) {
-            console.log("No existing file to delete");
-          }
-
-          // Save new file
-          await Bun.write(filePath, file);
-          const cv = await createOrUpdateCV(filename);
-
-          return {
-            success: true,
-            message: "CV updated successfully",
-            cv,
-            url: `/cv/files/${filename}`,
-            downloadUrl: `/cv/download`,
-          };
-        },
-        {
-          body: t.Object({
-            cv_file: t.Any(),
-          }),
-          parse: async ({ request }) => {
-            const formData = await request.formData();
-            const cv_file = formData.get("cv_file");
-            return { cv_file };
-          },
+        // Delete existing file if it exists
+        try {
+          (await Bun.file(filePath).exists()) && (await unlink(filePath));
+        } catch (error) {
+          console.log("No existing file to delete");
         }
-      )
+
+        // Save new file
+        await Bun.write(filePath, file);
+        const cv = await createOrUpdateCV(filename);
+
+        return {
+          success: true,
+          message: "CV updated successfully",
+          cv,
+          url: `/cv/files/${filename}`,
+          downloadUrl: `/cv/download`,
+        };
+      },
+      {
+        body: t.Object({
+          cv_file: t.Any(),
+        }),
+        parse: async ({ request }) => {
+          const formData = await request.formData();
+          const cv_file = formData.get("cv_file");
+          return { cv_file };
+        },
+      }
+    )
   );
