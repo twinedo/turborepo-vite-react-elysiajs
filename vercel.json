@@ -5,7 +5,7 @@
       "src": "apps/frontend/package.json",
       "use": "@vercel/static-build",
       "config": {
-        "outputDirectory": "apps/frontend/dist"
+        "distDir": "apps/frontend/dist"
       }
     },
     {
@@ -27,6 +27,5 @@
     }
   ],
   "installCommand": "bun install",
-  "buildCommand": "turbo run build",
-  "outputDirectory": "apps/frontend/dist"
+  "buildCommand": "turbo run build"
 }
