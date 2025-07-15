@@ -4,7 +4,13 @@
     "build": {
       "dependsOn": ["^build", "db:generate"],
       "inputs": ["$TURBO_DEFAULT$", ".env*"],
-      "outputs": ["dist/**", ".output/**"]
+      "outputs": ["dist/**", ".output/**"],
+      "env": [
+        "JWT_SECRET",
+        "DATABASE_URL",
+        "NODE_ENV",
+        "VITE_BASE_URL"
+      ]
     },
     "db:generate": {
       "cache": false,

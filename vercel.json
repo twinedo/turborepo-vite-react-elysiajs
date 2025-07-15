@@ -2,7 +2,14 @@
   "version": 2,
   "builds": [
     {
-      "src": "apps/backend/vercel.ts",
+      "src": "apps/frontend/package.json",
+      "use": "@vercel/static-build",
+      "config": {
+        "distDir": "apps/frontend/dist"
+      }
+    },
+    {
+      "src": "apps/backend/dist/vercel.js",
       "use": "@vercel/node",
       "config": {
         "includeFiles": ["apps/backend/prisma/**"]
@@ -12,7 +19,7 @@
   "routes": [
     {
       "src": "/api/(.*)",
-      "dest": "apps/backend/vercel.ts"
+      "dest": "apps/backend/dist/vercel.js"
     },
     {
       "src": "/(.*)",
@@ -20,6 +27,5 @@
     }
   ],
   "installCommand": "bun install",
-  "buildCommand": "turbo run build && cp -r apps/frontend/dist/* .",
-  "outputDirectory": "."
+  "buildCommand": "turbo run build"
 }
