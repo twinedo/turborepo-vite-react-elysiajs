@@ -1,4 +1,4 @@
-export type roject = {
+export type Project = {
 	bucket: string;
 	description: string[];
 	display: string;

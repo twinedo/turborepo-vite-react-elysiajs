@@ -1,5 +1,5 @@
 import Slider from "react-slick";
-import { NavLink, useNavigate } from "react-router";
+import { useNavigate } from "react-router";
 import { BiChevronRight } from "react-icons/bi";
 import { AiOutlineMobile } from "react-icons/ai";
 import { TbWorld } from "react-icons/tb";

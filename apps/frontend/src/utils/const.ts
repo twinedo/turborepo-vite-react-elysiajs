@@ -1,4 +1,4 @@
-import type { IProject } from "~repo-shared";
+import type { Project } from "~repo-shared";
 
 export const arrImages = [
   {
@@ -55,7 +55,7 @@ export const arrImages = [
 ];
 
 // Dummy data instead of API call
-export const dummyProjects: IProject[] = [
+export const dummyProjects: Project[] = [
   {
     bucket: "projects",
     description: "A modern e-commerce application with React Native",
