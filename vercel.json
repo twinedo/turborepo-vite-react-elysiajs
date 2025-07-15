@@ -5,8 +5,7 @@
       "src": "apps/frontend/package.json",
       "use": "@vercel/static-build",
       "config": {
-        "distDir": "dist",
-        "outputDirectory": "apps/frontend/dist"
+        "distDir": "dist"
       }
     },
     {
@@ -26,5 +25,8 @@
         "Cache-Control": "s-maxage=86400"
       }
     }
-  ]
+  ],
+  "config": {
+    "distDir": "build"
+  }
 }
