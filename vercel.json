@@ -25,8 +25,5 @@
         "Cache-Control": "s-maxage=86400"
       }
     }
-  ],
-  "config": {
-    "distDir": "build"
-  }
+  ]
 }
