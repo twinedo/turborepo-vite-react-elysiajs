@@ -1,9 +1,9 @@
-import { defineConfig } from 'vite'
-import react from '@vitejs/plugin-react'
+/** @type {import('vite').UserConfig} */
+import react from '@vitejs/plugin-react-swc'
 import tailwindcss from '@tailwindcss/vite'
 
 // https://vite.dev/config/
-export default defineConfig({
+export default {
   base: '/',
   plugins: [react(), tailwindcss()],
   server: {
@@ -12,7 +12,7 @@ export default defineConfig({
       '/api': {
         target: 'http://localhost:3000',
         changeOrigin: true,
-        rewrite: (path) => path.replace(/^\/api/, ''),
+        rewrite: (path: string) => path.replace(/^\/api/, ''),
       },
     },
   },
@@ -33,4 +33,4 @@ export default defineConfig({
   optimizeDeps: {
     include: ['slick-carousel']
   }
-})
+}
