@@ -1,5 +1,3 @@
-import type { Project } from "~repo-shared";
-
 export const arrImages = [
   {
     id: 1,
