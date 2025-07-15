@@ -1,22 +1,21 @@
-
-import { BiChevronLeft } from 'react-icons/bi';
-import Slider from 'react-slick';
-import { AiFillApple } from 'react-icons/ai';
-import { TbWorld } from 'react-icons/tb';
-import { FaGooglePlay } from 'react-icons/fa';
-import {NavLink, useNavigate} from 'react-router';
-import { Section } from '../section';
-import type { IProject } from '~repo-shared';
+import { BiChevronLeft } from "react-icons/bi";
+import Slider from "react-slick";
+import { AiFillApple } from "react-icons/ai";
+import { TbWorld } from "react-icons/tb";
+import { FaGooglePlay } from "react-icons/fa";
+import { NavLink, useNavigate } from "react-router";
+import { Section } from "../section";
+import type { Project } from "~repo-shared";
 
 export function ProjectDetail({
   data,
   imageData,
 }: {
-  data: IProject;
+  data: Project;
   imageData: Array<string>;
 }) {
   const navigate = useNavigate();
-  
+
   const imageSettings = {
     dots: true,
     infinite: imageData?.length > 3,
@@ -70,22 +69,15 @@ export function ProjectDetail({
             {/* Header Section */}
             <div className="flex flex-row justify-between items-center">
               <h1 className="font-bold text-2xl sm:text-3xl md:text-4xl">
-                {data?.name}
+                {data?.project_name}
               </h1>
-              <button 
-                onClick={() => navigate(-1)}
-                className="
-                  border border-gray-300
-                  rounded-md
-                  px-3 py-1.5
-                  flex items-center
-                  hover:bg-gray-50
-                  transition-colors
-                "
+              <div
+                onClick={() => navigate('/projects', { replace: true })}
+                className="border cursor-pointer border-gray-300 rounded-md px-3 py-1.5 bg-white flex items-center hover:bg-gray-50 transition-colors"
               >
                 <BiChevronLeft />
                 <span className="ml-2.5">Back</span>
-              </button>
+              </div>
             </div>
 
             {/* Metadata Section */}
@@ -109,13 +101,13 @@ export function ProjectDetail({
             </div>
 
             {/* Image Sliders */}
-            {data?.platform === 'website' && (
+            {data?.platform === "website" && (
               <Slider {...imageSettings}>
                 {imageData.map((o, i) => (
                   <div key={i} className="flex justify-center items-center">
                     <img
                       src={o}
-                      alt={data?.name}
+                      alt={data?.project_name}
                       className="w-full h-full rounded-lg object-cover"
                     />
                   </div>
@@ -123,13 +115,13 @@ export function ProjectDetail({
               </Slider>
             )}
 
-            {data?.platform === 'mobile' && (
+            {data?.platform === "mobile" && (
               <Slider {...imageMSettings}>
                 {imageData.map((o, i) => (
                   <div key={i} className="p-7 flex justify-center items-center">
-                    <img 
-                      src={o} 
-                      alt={data?.name} 
+                    <img
+                      src={o}
+                      alt={data?.project_name}
                       className="rounded-lg w-full h-auto"
                     />
                   </div>
@@ -140,13 +132,13 @@ export function ProjectDetail({
             {/* Description Section */}
             <div className="flex flex-col space-y-2">
               <h2 className="font-bold">Description</h2>
-              <p>{data?.description}</p>
+              <p>{data?.description[0]}</p>
             </div>
 
             {/* Available On Section */}
             <div className="flex flex-col space-y-2">
               <h2 className="font-bold">Available on</h2>
-              {data?.platform === 'website' && data?.link_website !== '-' && (
+              {data?.platform === "website" && data?.link_website !== "" && (
                 <NavLink
                   to={data?.link_website}
                   target="_blank"
@@ -157,9 +149,9 @@ export function ProjectDetail({
                 </NavLink>
               )}
 
-              {data?.platform === 'mobile' && (
+              {data?.platform === "mobile" && (
                 <div className="flex flex-row items-center space-x-5">
-                  {data?.link_appstore !== '-' && (
+                  {data?.link_appstore !== "" && (
                     <div className="flex flex-row items-center space-x-5">
                       <NavLink
                         to={data?.link_appstore}
@@ -172,7 +164,7 @@ export function ProjectDetail({
                       <div className="h-5 w-px bg-gray-300"></div>
                     </div>
                   )}
-                  {data?.link_playstore !== '-' && (
+                  {data?.link_playstore !== "" && (
                     <div className="flex flex-row items-center space-x-5">
                       <NavLink
                         to={data?.link_playstore}
@@ -185,7 +177,7 @@ export function ProjectDetail({
                       <div className="h-5 w-px bg-gray-300"></div>
                     </div>
                   )}
-                  {data?.link_website !== '-' && (
+                  {data?.link_website !== "" && (
                     <NavLink
                       to={data?.link_website}
                       target="_blank"

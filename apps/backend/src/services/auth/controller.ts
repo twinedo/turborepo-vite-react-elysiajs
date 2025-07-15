@@ -40,7 +40,6 @@ export const authController = new Elysia({ prefix: "/auth" })
     "/login",
     async ({ jwt, body, set }) => {
       try {
-        // console.log("bearer", bearer);
         const { user } = await loginUser(body.email, body.password);
         const token = await jwt.sign(user)
         set.status = 200;

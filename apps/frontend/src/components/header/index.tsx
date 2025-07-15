@@ -1,8 +1,8 @@
 import { useMemo } from "react";
-import { NavLink } from "react-router";
+import { NavLink, useLocation } from "react-router";
 
 export const Header = () => {
-  const pathname = window.location.pathname;
+  const {pathname} = useLocation()
 
   const navItems = useMemo(
     () => [

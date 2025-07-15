@@ -14,23 +14,18 @@ export const yyyyMmToEpoch = (yyyyMm: string): number => {
   try {
     // Parse as first day of the month
     const dateString = `${yyyyMm}-01`;
-    console.log('Parsing date string:', dateString);
     
     const date = parseISO(dateString);
-    console.log('Parsed date object:', date);
     
     const epoch = getUnixTime(date);
-    console.log('Unix time (seconds):', epoch, typeof epoch);
     
     return epoch;
   } catch (error) {
-    console.error('Error in yyyyMmToEpoch:', error);
     throw new Error(`Failed to convert ${yyyyMm} to epoch: ${error?.toString()}`);
   }
 };
 
 export const epochToYyyyMm = (epoch: number): string => {
-  console.log('epochToYyyyMm input:', epoch, typeof epoch);
   
   if (typeof epoch !== 'number' || isNaN(epoch)) {
     throw new Error("Invalid input: Expected number (Unix timestamp)");
@@ -38,14 +33,11 @@ export const epochToYyyyMm = (epoch: number): string => {
   
   try {
     const date = fromUnixTime(epoch);
-    console.log('Converted to date:', date);
     
     const result = format(date, "yyyy-MM");
-    console.log('Formatted result:', result);
     
     return result;
   } catch (error) {
-    console.error('Error in epochToYyyyMm:', error);
     throw new Error(`Failed to convert epoch ${epoch} to YYYY-MM: ${error?.toString()}`);
   }
 };
@@ -57,7 +49,6 @@ export const yyyyMmToReadable = (yyyyMm: string): string => {
     const date = parseISO(`${yyyyMm}-01`);
     return format(date, "MMMM yyyy");
   } catch (error) {
-    console.error('Error in yyyyMmToReadable:', error);
     return yyyyMm; // Return original if formatting fails
   }
 };
@@ -71,7 +62,6 @@ export const epochToReadable = (epoch: number): string => {
     const date = fromUnixTime(epoch);
     return format(date, "MMMM yyyy");
   } catch (error) {
-    console.error('Error in epochToReadable:', error);
     return "Invalid date";
   }
 };

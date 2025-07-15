@@ -1,37 +1,27 @@
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { AiOutlineMobile } from "react-icons/ai";
 import { TbWorld } from "react-icons/tb";
 // import { getDataFromAPI } from 'services/handler/handlerAPI';
 // import lodash from 'lodash';
-import { NavLink } from "react-router";
+import { useLocation, useNavigate } from "react-router";
 // import { useRouter } from '';
 import { Section } from "../section";
-import type { IProject } from "~repo-shared";
-import { dummyProjects } from "../../utils/const";
+import type { Project } from "~repo-shared";
+import { useGetProjects } from "../../services/projects";
 
 export function Projects() {
-  //   const router = useRouter();
-  const [selectedTab, setSelectedTab] = useState<"mobile" | "website">(
-    "mobile"
-  );
-  const [dataList, setDataList] = useState<Array<IProject>>(
-    dummyProjects ?? []
-  );
-  const [loading, setLoading] = useState(false);
+  const location = useLocation();
+  const navigate = useNavigate();
 
-  useEffect(() => {
-    setLoading(true);
-    // getDataFromAPI(selectedTab).then((res: any) => {
-    //   const sortYear = lodash.orderBy(res, 'year', 'desc');
-    //   setDataList(sortYear);
-    // });
-    setTimeout(() => {
-      setLoading(false);
-    }, 2000);
-    return () => {
-      setLoading(false);
-    };
-  }, [selectedTab]);
+  const [selectedTab, setSelectedTab] = useState<"mobile" | "website">(
+    location.state?.platform ?? "mobile"
+  );
+
+  const { data: dataList } = useGetProjects(selectedTab);
+
+  const onNavigate = (data: Project) => {
+    navigate("/projects/detail", { state: { data } });
+  };
 
   return (
     <div>
@@ -92,8 +82,12 @@ export function Projects() {
 
             {/* Projects Grid */}
             <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-10">
-              {dataList.map((o: IProject) => (
-                <div key={o.key} className="px-2.5 py-5">
+              {dataList?.map((o: Project) => (
+                <div
+                  key={o.id}
+                  className="px-2.5 py-5"
+                  onClick={() => onNavigate(o)}
+                >
                   <div className="flex flex-col space-y-3 rounded-lg bg-[#1e3f66] cursor-pointer hover:shadow-[0_2px_8px_0_rgba(0,0,0,0.8)] transition-shadow">
                     <div className="w-full h-[100px]">
                       <img
@@ -107,7 +101,7 @@ export function Projects() {
                         <div className="flex flex-row items-center justify-between">
                           <div className="flex-1">
                             <p className="text-white font-semibold truncate">
-                              {o.name}
+                              {o.project_name}
                             </p>
                           </div>
                           {o.platform === "mobile" ? (
@@ -121,17 +115,12 @@ export function Projects() {
                           <p className="text-white text-xs text-center">
                             {o.year}
                           </p>
-                          <NavLink
-                            to={`/projects/detail`}
-                            state={{
-                              data: o,
-                              imageData: [o.display],
-                            }}
+                          <div
+                            onClick={() => onNavigate(o)}
+                            className="text-white border border-white rounded-full py-1 px-5 text-xs text-center hover:bg-white hover:text-black transition-colors"
                           >
-                            <div className="text-white border border-white rounded-full py-1 px-5 text-xs text-center hover:bg-white hover:text-black transition-colors">
-                              Detail
-                            </div>
-                          </NavLink>
+                            Detail
+                          </div>
                         </div>
                       </div>
                     </div>
