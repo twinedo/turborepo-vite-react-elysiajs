@@ -4,9 +4,9 @@
   "type": "module",
   "private": true,
   "scripts": {
-    "start": "bun run index.ts",
+    "start": "node dist/vercel.js",
     "dev": "bun run index.ts --watch",
-    "build": "prisma generate --no-engine && bun build index.ts --outdir=dist --target=node",
+    "build": "prisma generate --no-engine && bun build index.ts --outdir=dist --target=node --format=cjs",
     "db:generate": "prisma generate --no-engine",
     "db:migrate": "prisma migrate deploy"
   },

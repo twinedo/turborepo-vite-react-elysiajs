@@ -12,8 +12,13 @@ import { errorResponse } from "~repo-shared";
 
 const UPLOAD_DIR = join(process.cwd(), "src", "uploads", "cv");
 
-// Ensure upload directory exists
-await mkdir(UPLOAD_DIR, { recursive: true });
+// Ensure upload directory exists - wrapped in async function
+const ensureUploadDir = async () => {
+  await mkdir(UPLOAD_DIR, { recursive: true });
+};
+
+// Call the function to ensure directory exists
+ensureUploadDir().catch(console.error);
 
 export const cvController = new Elysia({ prefix: "/cv" })
   .use(
@@ -47,12 +52,6 @@ export const cvController = new Elysia({ prefix: "/cv" })
       "Access-Control-Expose-Headers": "Content-Disposition",
     };
 
-    //   set.headers = {
-    //   "Content-Type": "application/pdf",
-    //   "Content-Disposition": `attachment; filename="${cv.filename}"`,
-
-    // };
-
     // Return the file
     return new Response(Bun.file(filePath));
   })
@@ -62,6 +61,8 @@ export const cvController = new Elysia({ prefix: "/cv" })
     app.post(
       "/upload",
       async ({ body }) => {
+        await ensureUploadDir();
+        
         const file = Array.isArray(body.cv_file)
           ? body.cv_file[0]
           : body.cv_file;

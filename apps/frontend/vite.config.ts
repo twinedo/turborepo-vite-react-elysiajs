@@ -18,7 +18,7 @@ export default {
   },
   // Production-optimized settings
   build: {
-    outDir: 'build'  // Changed from 'dist' to 'build'
+    outDir: 'dist'  // Changed from 'dist' to 'build'
   },
   preview: {
     port: 5173,
