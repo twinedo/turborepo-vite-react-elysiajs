@@ -12,20 +12,8 @@
   ],
   "routes": [
     {
-      "src": "/project",
+      "src": "/api/(.*)",
       "dest": "apps/backend/index.ts"
-    },
-    {
-      "src": "/cv",
-      "dest": "apps/backend/index.ts"
-    },
-    {
-      "src": "/experience",
-      "dest": "apps/backend/index.ts"
-    },
-    {
-       "src": "/project-images",
-       "dest": "apps/backend/index.ts"
     },
     {
       "src": "/(.*)",
