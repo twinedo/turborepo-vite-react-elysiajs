@@ -16,7 +16,7 @@ const app = new Elysia()
       exposeHeaders: ["Content-Disposition"], // Important for downloads
     })
   )
-  .get("/", () => "Hello from Elysia!")
+  .get("/api", () => "Hello from Elysia!")
   .use(cvController)
   .use(experienceController)
   .use(projectController)
@@ -24,6 +24,7 @@ const app = new Elysia()
   .use(authController)
   .use(
     swagger({
+      path: '/api/swagger',
       documentation: {
         info: {
           title: "Portfolio API",

@@ -17,7 +17,7 @@ import { jwtProps } from "src/utils/const";
 import bearer from "@elysiajs/bearer";
 import { isValidYyyyMm } from "src/utils/dateUtils";
 
-export const experienceController = new Elysia({ prefix: "/experience" })
+export const experienceController = new Elysia({ prefix: "/api/experience" })
   // Create new experience
 
   // Get all experiences (sorted by endDate)

@@ -20,7 +20,7 @@ const ensureUploadDir = async () => {
 // Call the function to ensure directory exists
 ensureUploadDir().catch(console.error);
 
-export const cvController = new Elysia({ prefix: "/cv" })
+export const cvController = new Elysia({ prefix: "/api/cv" })
   .use(
     staticPlugin({
       assets: UPLOAD_DIR,
@@ -62,7 +62,7 @@ export const cvController = new Elysia({ prefix: "/cv" })
       "/upload",
       async ({ body }) => {
         await ensureUploadDir();
-        
+
         const file = Array.isArray(body.cv_file)
           ? body.cv_file[0]
           : body.cv_file;
