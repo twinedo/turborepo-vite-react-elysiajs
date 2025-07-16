@@ -20,11 +20,5 @@
       "dest": "/apps/frontend/dist/$1",
       "continue": true
     }
-  ],
-  "rewrites": [
-    {
-      "source": "/(.*)",
-      "destination": "/apps/frontend/dist/index.html"
-    }
   ]
 }
