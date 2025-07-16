@@ -50,3 +50,5 @@ const app = new Elysia()
 console.log(
   `🦊 Backend running at http://${app.server?.hostname}:${app.server?.port}`
 );
+
+export default app.handle

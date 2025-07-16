@@ -10,7 +10,7 @@
         "DATABASE_URL",
         "NODE_ENV",
         "VITE_BASE_URL",
-        "VITE_FRONTEND_URL "
+        "VITE_FRONTEND_URL"
       ]
     },
     "db:generate": {
